@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Analysis - HelloString{% endblock %}
+
+{% block nav_right %}
+
+<a class="nav-item nav-link" id="API" href="/api_docs" style="color:white">API</a>
+
+{% if current_user.is_authenticated %}       
+    <a class="nav-item nav-link" id="logout" href="/settings" style="color:white">Settings</a>
+    <a class="nav-item nav-link" id="logout" href="/logout" style="color:white">Logout</a>
+{% else %}
+    <a class="nav-item nav-link" id="login" href="/login" style="color:white">Login</a>
+    <a class="nav-item nav-link" id="signUp" href="/sign-up" style="color:white">Sign Up</a>
+{% endif %}
+
+{% endblock %}
+
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %} 
+        {% if messages %} 
+            {% for category, message in messages %} 
+                {% if category =='error' %}
+                    <div class="alert alert-danger alter-dismissable fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success alter-dismissable fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                {% endif %} 
+            {% endfor %} 
+        {% endif %} 
+    {% endwith %}
+
+<div class='body-home-analysis' style="border-style: ridge; margin-bottom: 2ch; background-color: rgb(252, 252, 252);">
+    <div class="body-home-analysis-title">
+        <h2>
+            {{inserted_text|safe}}
+        </h2>
+    </div>
+    <hr style="border-style: solid; border-width: 1px; width: 80%">
+    <h2 style="text-align: center;">General Statistics</h2>
+    <div class="body-home-analysis-first-row">
+        <div class="body-home-analysis-first-row-box">
+            <h3>Characters</h3>
+            <h1>{{char_count}}</h1>
+        </div>
+        <div class="body-home-analysis-first-row-box">
+            <h3>Words</h3>
+            <h1>{{word_count}}</h1>
+        </div>
+        <div class="body-home-analysis-first-row-box">
+            <h3>Sentences</h3>
+            <h1>{{sent_count}}</h1>
+        </div>
+        <div class="body-home-analysis-first-row-box">
+            <h3>Punctuation</h3>
+            <h1>{{punc_count}}</h1>
+        </div>
+    </div>
+    <hr style="border-style: solid; border-width: 1px; width: 95%; margin-top:0">
+    <h2 style="text-align: center;">Visualizations</h2>
+    <div class="body-home-analysis-second-row">
+        <div style="flex-grow: 1;">
+            <canvas id="chartFreq" style="max-width: 90vh; max-height: 30vh">
+                <script>
+                    const values = {{wfi|tojson}};
+                    const data = {
+                    labels: values[0],
+                    datasets: [{
+                        label: 'Times found in text',
+                        backgroundColor: 'rgb(59, 205, 92)',
+                        borderColor: 'rgb(255, 255, 255)',
+                        data: values[1],
+                    }]
+                    };
+                
+                    const config = {
+                    type: 'bar',
+                    data: data,
+                    options: {}
+                    };
+
+                    const myChart = new Chart(
+                        document.getElementById('chartFreq'),
+                        config
+                    );
+                </script>
+            </canvas>
+        </div>
+
+        <div class="body-home-analysis-second-row-box">
+            <h3>Sentiment</h3>
+            <div id="placeholder_A"></div>
+            <h1 id="sentiment_score">{{sentiment_score}}</h1>
+            <div id="smiley">
+                <div id="leye"></div>
+                <div id="reye"></div>
+                <div id="mouth"></div>
+            </div>
+        </div>
+        
+        <div class="body-home-analysis-second-row-box" style="margin-left:5vh">
+            <h3>Aggressiveness</h3>
+            <div id="placeholder_B"></div>
+            <h1 id="aggressiveness_score">{{aggressiveness_score}}</h1>
+            <div id="smiley2">
+                <div id="leye2"></div>
+                <div id="reye2"></div>
+                <div id="mouth2"></div>
+            </div>
+        </div>
+    </div>
+    {% if is_authed %}
+    <script>
+        const sentiment = {{sentiment_score|tojson}};
+        if (sentiment<-0.3){
+            document.getElementById('mouth').style.backgroundColor='red';
+            document.getElementById('smiley').style.backgroundColor='red';
+            document.getElementById('mouth').style.transform = 'rotate(180deg)'
+            document.getElementById('mouth').style.bottom = '10px';
+        }
+        else if (sentiment<0.3){
+            document.getElementById('mouth').style.backgroundColor='#f0e130';
+            document.getElementById('smiley').style.backgroundColor='#f0e130';
+            document.getElementById('mouth').style.borderRadius = 0;
+        }
+
+        const aggressiveness = {{aggressiveness_score|tojson}};
+
+        if (aggressiveness>0.3){
+            document.getElementById('mouth2').style.backgroundColor='red';
+            document.getElementById('smiley2').style.backgroundColor='red';
+            document.getElementById('mouth2').style.transform = 'rotate(180deg)'
+            document.getElementById('mouth2').style.bottom = '10px';
+            document.getElementById('mouth2').style.borderRadius = '100%';
+        }
+
+    </script>
+
+
+    {% else %}
+    <script>
+        document.getElementById('aggressiveness_score').innerHTML = ''
+        document.getElementById('placeholder_B').innerHTML = 'Log in as a verified user<br>for aggressiveness score'
+        document.getElementById('sentiment_score').innerHTML = ''
+        document.getElementById('placeholder_A').innerHTML = 'Log in as a verified user<br>for sentiment score'
+        document.getElementById('mouth').style.backgroundColor='#fff8dc';
+        document.getElementById('smiley').style.backgroundColor='#fff8dc';
+        document.getElementById('mouth2').style.backgroundColor='#fff8dc';
+        document.getElementById('smiley2').style.backgroundColor='#fff8dc';
+        document.getElementById('mouth').style.borderRadius = 0;
+    </script>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,670 @@
+{% extends "base.html" %}
+{% block title %}Docs - HelloString{% endblock %}
+
+{% block nav_right %}
+
+<a class="nav-item nav-link" id="API" href="/api_docs" style="color:white">API</a>
+
+{% if current_user.is_authenticated %}       
+    <a class="nav-item nav-link" id="logout" href="/settings" style="color:white">Settings</a>
+    <a class="nav-item nav-link" id="logout" href="/logout" style="color:white">Logout</a>
+{% else %}
+    <a class="nav-item nav-link" id="login" href="/login" style="color:white">Login</a>
+    <a class="nav-item nav-link" id="signUp" href="/sign-up" style="color:white">Sign Up</a>
+{% endif %}
+
+{% endblock %}
+
+{% block body %}
+
+<div style="padding-left: 1em; padding-right: 1em; margin-left: auto; margin-right: auto; max-width: 1300px;">
+    <div style="display: flex; width: 100%; align-items: flex-start;">
+        <div style="width: 300px; margin-right: 2em; position: sticky; top: 0; background-color: #fafafa; border: 1px; border-style: groove;">
+            <div style="padding: 2em; display: block;">
+                <p style="opacity: 0.7; font-weight: 300; list-style-type: none; margin-bottom: 0px;">
+                    <h4 style="font-weight: 500;">Contents</h4>
+                </p>                
+                <p style="opacity: 0.7; font-weight: 300; list-style-type: none; margin-bottom: 0px;">
+                    <h5>API</h5>
+                </p>
+                <ul style="margin-bottom: 1em; text-transform: none; list-style-type: none; padding-left: 0px;">
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-introduction">Introduction</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-tokenize">Tokenization</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-frequency">Word/Character Frequency</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-stopwords">Stopwords</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-stemming">Stemming</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-lemmatizing">Lemmatizing</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-pos">POS Tagging</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-sentiment">Sentiment Analysis</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-aggressiveness">Text Aggressiveness</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-errors">Error Codes</a></li>
+                </ul>
+                <p style="opacity: 0.7; font-weight: 300; list-style-type: none; margin-bottom: 0px;">
+                    <h5>About</h5>
+                </p>
+                <ul style="margin-bottom: 1em; text-transform: none; list-style-type: none; padding-left: 0px;">
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-introduction">General</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="../howto.html">Resources</a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="flex: 1; width: 0;">
+            <div style="padding: 2em;">
+                <section id="api-introduction" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Introduction</h1>
+                    <dl>
+                        <dd>
+                            <p> HelloString is a RESTful API that provides the ability to perform <i>natural language 
+                                processing</i> on any given text, by providing access to open-source tools.</p>
+                            
+                            <p> This web application doesn't run on a specific domain. This means that it's URL changes consistently.
+                                We will be refering to the current domain of the page as www.currentdomain.com.
+                            </p>
+
+                            <p> In general, the API can be accessed through different endpoints - that are all described on this page - width
+                                the following, base URL:
+                            </p>
+
+                            <pre>
+                            <code class="language-json hljs">www.currentdomain.com/api/*</code>
+                            </pre>
+
+                        </dd>
+                    </dl>
+                </section>
+                <br>
+                <br>
+                <br>
+                <section id="api-tokenize" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Tokenization</h1>
+                    <dl>
+                        <dd>
+                            <p> Text tokenization is available by calling the API through the following endpoint: </p>
+                            
+                            <pre>
+                                <code class="language-json hljs">www.currentdomain.com/api/tokenize?text='input_string'</code>
+                            </pre>
+
+                            <p> Tokenization is a basic NLP task that accepts a string as an input and returns tokens (words or sentences) in the form of an array
+                                of strings.
+                            </p>
+
+                            <p> Inputs:<br>
+                                <ul>
+                                    <li>
+                                       <b> text: </b> (Type: String *) The input string that needs to be tokenized
+                                    </li>
+                                </ul>
+                            </p>
+
+                            <p> Outputs:<br>
+                                <pre>
+<code class="language-json hljs">{
+'sentence_tokens': [--Array of strings--], 
+'word_tokens': [--Array of strings--]
+}</code>
+                                </pre>
+                                The 'sentence_tokens' contains an array of all the sentences found in the input string while the 'word_tokens' contains an array of all
+                                the words found in the input string.
+                            </p>
+
+                            <p>
+
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+                <br>
+                <br>
+                <br>
+                <section id="api-frequency" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Word/Character Frequency</h1>
+                    <dl>
+                        <dd>
+                            <p> Word/character frequency detection is available by calling the API through the following endpoint: </p>
+                            
+                            <pre>
+                                <code class="language-json hljs">www.currentdomain.com/api/frequency?text='input_string'&level='level'</code>
+                            </pre>
+
+                            <p> Inputs:<br>
+                                <ul>
+                                    <li>
+                                       <b> text: </b> (Type: String *) The input string that needs to be analyzed
+                                    </li>
+                                    <li>
+                                        <b> level: </b> (Type: String, Choices: [char, word <i>(default)</i>], Optional) Frequency analysis on character/word level
+                                     </li>
+                                </ul>
+                            </p>
+
+                            <p> Outputs:<br>
+                                <pre>
+<code class="language-json hljs">{
+'word_frequency': {JSON structure}
+}</code>
+                                </pre>
+                                The 'word_frequency' is a JSON structured object containing the characters/words as keys and their frequency in the input text as a value.
+                            </p>
+
+                            <p>
+
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+
+                <br>
+                <br>
+                <br>
+
+                <section id="api-stopwords" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Stopword removal</h1>
+                    <dl>
+                        <dd>
+                            <p> Stopword removal is available by calling the API through the following endpoint: </p>
+                            
+                            <pre>
+                                <code class="language-json hljs">www.currentdomain.com/api/stopwords?text='input_string'&sw_list=[--List of strings--]</code>
+                            </pre>
+
+                            <p> Inputs:<br>
+                                <ul>
+                                    <li>
+                                       <b> text: </b> (Type: String *) The input string that needs to be analyzed
+                                    </li>
+                                    <li>
+                                        <b>sw_list: </b> (Type: Array of Strings *, Optional) Array containing user-defined stopwords - overwrites default stopword list.
+                                        For the default stopword list, visit the following <a href="https://gist.github.com/sebleier/554280">link</a>.
+                                     </li>
+                                </ul>
+                            </p>
+
+                            <p> Outputs:<br>
+                                <pre>
+<code class="language-json hljs">{
+'stopwords': String
+}</code>
+                                </pre>
+                                The 'stopwords' contains the input string, stripped of it's stopwords.
+                            </p>
+
+                            <p>
+
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+
+               
+                <br>
+                <br>
+                <br>
+
+                 <section id="api-stemming" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Stemming</h1>
+                    <dl>
+                        <dd>
+                            <p> Stemming is available by calling the API through the following endpoint: </p>
+                            
+                            <pre>
+                                <code class="language-json hljs">www.currentdomain.com/api/stemming?text='input_string'&stemmer='stemmer'</code>
+                            </pre>
+
+                            <p> Inputs:<br>
+                                <ul>
+                                    <li>
+                                       <b> text: </b> (Type: String *) The input string that needs to be stemmed
+                                    </li>
+                                    <li>
+                                        <b>stemmer: </b> (Type: String, Choices: [snowball, porter <i>(default)</i>], Optional) Stemming method used
+                                     </li>
+                                </ul>
+                            </p>
+
+                            <p> Outputs:<br>
+                                <pre>
+<code class="language-json hljs">{
+'stemmed_string': String
+}</code>
+                                </pre>
+                                The 'stemmed_string' contains the input string, after being stemmed through one of the above methods.
+                            </p>
+
+                            <p>
+
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+
+                
+                <br>
+                <br>
+                <br>
+
+                <section id="api-lemmatizing" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Lemmatizing</h1>
+                    <dl>
+                        <dd>
+                            <p> Lemmatization is available by calling the API through the following endpoint: </p>
+                            
+                            <pre>
+                                <code class="language-json hljs">www.currentdomain.com/api/lemmatization?text='input_string'</code>
+                            </pre>
+
+                            <p> Inputs:<br>
+                                <ul>
+                                    <li>
+                                       <b> text: </b> (Type: String *) The input string that needs to be lemmatized
+                                    </li>
+                                </ul>
+                            </p>
+
+                            <p> Outputs:<br>
+                                <pre>
+<code class="language-json hljs">{
+'lemmatized_string': String
+}</code>
+                                </pre>
+                                The 'lemmatized_string' contains the input string, after being lemmatized. For more info about how the lemmatization is being applied, follow <a href="https://www.nltk.org/_modules/nltk/stem/wordnet.html">this link</a>.
+                            </p>
+
+                            <p>
+
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+
+                <br>
+                <br>
+                <br>
+
+                <section id="api-pos" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">POS Tagging</h1>
+                    <dl>
+                        <dd>
+                            <p> Part-Of-Speech tagging is available by calling the API through the following endpoint: </p>
+                            
+                            <pre>
+                                <code class="language-json hljs">www.currentdomain.com/api/pos?text='input_string'</code>
+                            </pre>
+
+                            <p> Inputs:<br>
+                                <ul>
+                                    <li>
+                                       <b> text: </b> (Type: String *) The input string that needs to be tagged
+                                    </li>
+                                </ul>
+                            </p>
+
+                            <p> Outputs:<br>
+                                <pre>
+<code class="language-json hljs">{
+'pos_tags': [--Array of Strings--]
+}</code>
+                                </pre>
+                                The 'pos_tags' is an array of strings containing every POS tag of each word/part of speech contained in the input string. For more information about the given POS tags, please advise the following table:
+                            </p>
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                <th>Abbreviation</th>
+                                <th>Meaning</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                <td>CC</td>
+                                <td>coordinating conjunction</td>
+                                </tr>
+                                <tr>
+                                <td>CD</td>
+                                <td>cardinal digit</td>
+                                </tr>
+                                <tr>
+                                <td>DT</td>
+                                <td>determiner</td>
+                                </tr>
+                                <tr>
+                                <td>EX</td>
+                                <td>existential there</td>
+                                </tr>
+                                <tr>
+                                <td>FW</td>
+                                <td>foreign word</td>
+                                </tr>
+                                <tr>
+                                <td>IN</td>
+                                <td>preposition/subordinating conjunction</td>
+                                </tr>
+                                <tr>
+                                <td>JJ</td>
+                                <td>This NLTK POS Tag is an adjective (large)</td>
+                                </tr>
+                                <tr>
+                                <td>JJR</td>
+                                <td>adjective, comparative (larger)</td>
+                                </tr>
+                                <tr>
+                                <td>JJS</td>
+                                <td>adjective, superlative (largest)</td>
+                                </tr>
+                                <tr>
+                                <td>LS</td>
+                                <td>list market</td>
+                                </tr>
+                                <tr>
+                                <td>MD</td>
+                                <td>modal (could, will)</td>
+                                </tr>
+                                <tr>
+                                <td>NN</td>
+                                <td>noun, singular (cat, tree)</td>
+                                </tr>
+                                <tr>
+                                <td>NNS</td>
+                                <td>noun plural (desks)</td>
+                                </tr>
+                                <tr>
+                                <td>NNP</td>
+                                <td>proper noun, singular (sarah)</td>
+                                </tr>
+                                <tr>
+                                <td>NNPS</td>
+                                <td>proper noun, plural (indians or americans)</td>
+                                </tr>
+                                <tr>
+                                <td>PDT</td>
+                                <td>predeterminer (all, both, half)</td>
+                                </tr>
+                                <tr>
+                                <td>POS</td>
+                                <td>possessive ending  (parent\ ‘s)</td>
+                                </tr>
+                                <tr>
+                                <td>PRP</td>
+                                <td>personal pronoun (hers, herself, him, himself)</td>
+                                </tr>
+                                <tr>
+                                <td>PRP$</td>
+                                <td>possessive pronoun (her, his, mine, my, our )</td>
+                                </tr>
+                                <tr>
+                                <td>RB</td>
+                                <td>adverb (occasionally, swiftly)</td>
+                                </tr>
+                                <tr>
+                                <td>RBR</td>
+                                <td>adverb, comparative (greater)</td>
+                                </tr>
+                                <tr>
+                                <td>RBS</td>
+                                <td>adverb, superlative (biggest)</td>
+                                </tr>
+                                <tr>
+                                <td>RP</td>
+                                <td>particle (about)</td>
+                                </tr>
+                                <tr>
+                                <td>TO</td>
+                                <td>infinite marker (to)</td>
+                                </tr>
+                                <tr>
+                                <td>UH</td>
+                                <td>interjection (goodbye)</td>
+                                </tr>
+                                <tr>
+                                <td>VB</td>
+                                <td>verb (ask)</td>
+                                </tr>
+                                <tr>
+                                <td>VBG</td>
+                                <td>verb gerund (judging)</td>
+                                </tr>
+                                <tr>
+                                <td>VBD</td>
+                                <td>verb past tense (pleaded)</td>
+                                </tr>
+                                <tr>
+                                <td>VBN</td>
+                                <td>verb past participle (reunified)</td>
+                                </tr>
+                                <tr>
+                                <td>VBP</td>
+                                <td>verb, present tense not 3rd person singular(wrap)</td>
+                                </tr>
+                                <tr>
+                                <td>VBZ</td>
+                                <td>verb, present tense with 3rd person singular (bases)</td>
+                                </tr>
+                                <tr>
+                                <td>WDT</td>
+                                <td>wh-determiner (that, what)</td>
+                                </tr>
+                                <tr>
+                                <td>WP</td>
+                                <td>wh- pronoun (who)</td>
+                                </tr>
+                                <tr>
+                                <td>WRB</td>
+                                <td>wh- adverb (how)</td>
+                                </tr>
+                                </tbody>
+                                </table>
+
+                            <p>
+
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+
+                <br>
+                <br>
+                <br>
+
+                <section id="api-sentiment" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Sentiment Analysis</h1>
+                    <dl>
+                        <dd>
+                            <p> Sentiment analysis is available by calling the API through the following endpoint: </p>
+                            
+                            <pre>
+                                <code class="language-json hljs">www.currentdomain.com/api/sentiment?text='input_string'&auth='auth_key'&cont='cont'&method='method'</code>
+                            </pre>
+
+                            <p> Inputs:<br>
+                                <ul>
+                                    <li>
+                                       <b> text: </b> (Type: String *) The input string that needs to be lemmatized
+                                    </li>
+                                    <li>
+                                       <b> auth: </b> (Type: String ) The authentication key given to every verified account (find it under the "Settings" page)
+                                    </li>
+                                    <li>
+                                       <b> cont: </b> (Type: String, Choices: [no, yes <i>(default)</i>], Optional) The output should be continuous or categorical (yes or no)
+                                    </li>
+                                    <li>
+                                       <b> method: </b> (Type: String, Choices: [textblob, vader <i>(default)</i>], Optional) The model used for sentiment analysis
+                                    </li>
+                                </ul>
+                            </p>
+
+                            <p> Outputs:<br>
+                                <pre>
+<code class="language-json hljs">{
+'sentiment': Float
+}</code>
+                                </pre>
+                                The 'sentiment' represents a continuous (-1 to 1) or a discrete value (-1, 0 or 1) of the sentiment score. Negative scores represent a negative sentiment (-1 meaning most negative), positive scores represent a positive sentiment (1 meaning most positive) while scores close to 0 inticate neither positive or negative sentiment (neutral).
+                            </p>
+
+                            <p>
+
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+
+                <br>
+                <br>
+                <br>
+
+                <section id="api-aggressiveness" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Text Aggressiveness</h1>
+                    <dl>
+                        <dd>
+                            <p> Text Aggressiveness is available by calling the API through the following endpoint: </p>
+                            
+                            <pre>
+                                <code class="language-json hljs">www.currentdomain.com/api/aggressiveness?text='input_string'&auth='auth_key'&cont='cont'</code>
+                            </pre>
+
+                            <p> Inputs:<br>
+                                <ul>
+                                    <li>
+                                       <b> text: </b> (Type: String *) The input string that needs to be lemmatized
+                                    </li>
+                                    <li>
+                                       <b> auth: </b> (Type: String ) The authentication key given to every verified account (find it under the "Settings" page)
+                                    </li>
+                                    <li>
+                                       <b> cont: </b> (Type: String, Choices: [no, yes <i>(default)</i>], Optional) The output should be continuous or categorical (yes or no)
+                                    </li>
+                                </ul>
+                            </p>
+
+                            <p> Outputs:<br>
+                                <pre>
+<code class="language-json hljs">{
+'aggressiveness': Float
+}</code>
+                                </pre>
+                                The 'aggressiveness' represents a continuous (0 to 1) or a discrete value (0 or 1) of the sentiment score. Scores closer to 1 represent a highly aggressive content (1 meaning most aggressive content) while scores closer to 0 inticate less aggressive content (0 meaning no aggressive content).
+                            </p>
+
+                            <p>
+
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+                
+                <br>
+                <br>
+                <br>
+
+                <section id="api-errors" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Error Codes</h1>
+                    <dl>
+                        <dd>
+                            <p> <b> Error code 400 </b> is usually refering to wrong parameters that are passed during a request.</p>
+                                <i> For example, a 400 error code could be returned with the reason "No text argument", indicating that no "text" parameter is passed when needed.</i>0
+                            </p>
+                            <br>
+                            <p>
+                                <b> Error code 401 </b> is refering to missing/invalid authentication. It's refering to the 'auth' parameter of some requests. The auth key is provided to every verified user, and can be found at the Settings page.
+                            </p>
+
+
+                            
+
+                        </dd>
+                    </dl>
+                </section>
+
+                <br>
+                <br>
+                <br>
+
+                <hr>
+
+                <h1 style="font-size: 2em; margin-bottom: 1em; text-align: center;">About</h1>
+
+                <hr>
+
+                <br>
+                <br>
+                <br>
+
+                <section id="api-general" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">General</h1>
+                    <dl>
+                        <dd>
+                            <p> This application was built by A. I. Karasakalidis while following the subject of 'Software Technology' at the Democritus University of Thrace, under the supervision of G. Tsoulouchas (PhD), during the spring semester of 2022.</p>                          
+                        </dd>
+                    </dl>
+                </section>
+
+                <br>
+                <br>
+                <br>
+
+                <section id="api-resources" style="display: block;">
+                    <h1 style="font-size: 2em; margin-bottom: 1em;">Resources</h1>
+                    <dl>
+                        <dd>
+                            <p> This application was created with both open-source tools as well as tools developed by A.I. Karasakalidis.</p>
+                            <p> References:<br>
+                                <ul>
+                                    <li>
+                                       <b><a href="https://www.nltk.org"> NLTK </a></b> Open-source NLP-task driven library built in python
+                                    </li>
+                                    <li>
+                                        <b><a href="https://textblob.readthedocs.io/en/dev/"> Textblob </a></b> Open-source NLP-task driven library built in python
+                                    </li>
+                                    <li>
+                                        <b><a href="https://scikit-learn.org/stable/"> Scikit-learn </a></b> Open-source machine learning and data processing library build in python
+                                    </li>
+                                    <li>
+                                        <b><a href="https://flask.palletsprojects.com/en/2.1.x/"> Flask </a></b> Open-source, web development framework built in python
+                                    </li>
+                                    <li>
+                                        <b><a href="https://aclanthology.org/2021.semeval-1.157"> Aggressiveness Model </a></b> Our published work on the aggressiveness model used by this application
+                                    </li>
+                                </ul>
+                            </p>                          
+                        </dd>
+                    </dl>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %} 
+{% block title %}Sign Up{% endblock %} 
+
+{% block nav_right %}
+
+{% if current_user.is_authenticated %}
+    <a class="nav-item nav-link" id="logout" href="/logout" style="color:white">Logout</a>
+{% else %}
+    <a class="nav-item nav-link" id="login" href="/login" style="color:white">Login</a>
+    <a class="nav-item nav-link" id="signUp" href="/sign-up" style="color:white">Sign Up</a>
+{% endif %}
+
+{% endblock %}
+
+{% block body %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %} 
+    {% if messages %} 
+        {% for category, message in messages %} 
+            {% if category =='error' %}
+                <div class="alert alert-danger alter-dismissable fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% else %}
+                <div class="alert alert-success alter-dismissable fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% endif %} 
+        {% endfor %} 
+    {% endif %} 
+    {% endwith %}
+
+    <div style="padding: 15%;">
+        <form method="POST" style="padding: 2%" class="body-main-list">
+        <h3 style="align-self: center">Sign Up</h3>
+
+        <div class="form-group" id="e_mail-form">
+            <label for="e_mail">Email</label>
+            <input
+            type="email"
+            class="form-control"
+            id="e_mail"
+            name="e_mail"
+            placeholder="Enter email"
+            onchange="checkMe()"
+            />
+        </div>
+
+        <div class="form-group" id="password1-form">
+            <label for="password1">Password</label>
+            <input
+            type="password"
+            class="form-control"
+            id="password1"
+            name="password1"
+            placeholder="Enter password"
+            onchange="checkMe()"
+            />
+        </div>
+
+        <div class="form-group" id="password2-form">
+            <label for="password2">Password (Confirm) </label>
+            <input
+            type="password"
+            class="form-control"
+            id="password2"
+            name="password2"
+            placeholder="Confirm password"
+            onchange="checkMe()"
+            />
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primary" disabled="true">Submit</button>
+
+        </form>
+
+        <script>
+            var emailValid = false;
+            var passValid = false;
+            var passMatch = false;
+
+            function checkMe(){
+                var mail = document.getElementById('e_mail');
+                var re = /\S+@\S+\.\S+/;
+
+                if (re.test(mail.value)){
+                    emailValid = true;
+                    if (document.getElementById('emailValid')){
+                        document.getElementById('emailValid').remove();
+                        document.getElementById('e_mail').setAttribute('class','form-control');
+                    }
+                }
+                else{
+                    emailValid = false;
+                    if (mail.value.length>0&&!document.getElementById('emailValid')){
+                        var newAtt = document.createElement("div");
+                        newAtt.setAttribute('id','emailValid');
+                        var text = document.createTextNode("Enter a valid e-mail");
+                        newAtt.appendChild(text);
+                        document.getElementById('e_mail-form').appendChild(newAtt);
+                        document.getElementById('e_mail').setAttribute('class','form-control is-invalid');
+
+                    }
+                    else{
+                        if (document.getElementById('emailValid')){
+                            document.getElementById('emailValid').remove();
+                            document.getElementById('e_mail').setAttribute('class','form-control');
+                        }
+                    }
+                }
+
+                var pass1 = document.getElementById('password1');
+    
+                if (pass1.value.length>5 && pass1.value.length<=20){
+                    passValid=true;
+
+                    if (document.getElementById('password1Valid')){
+                        document.getElementById('password1Valid').remove();
+                        document.getElementById('password1').setAttribute('class','form-control');
+                    }
+                }
+                else{
+                    passValid=false;
+                    if (pass1.value.length>0&&!document.getElementById('password1Valid')){
+                        var newAtt = document.createElement("div");
+                        newAtt.setAttribute('id','password1Valid');
+                        var text = document.createTextNode("Passwords must contain 6 to 20 characters/numbers/symbols");
+                        newAtt.appendChild(text);
+                        document.getElementById('password1-form').appendChild(newAtt);
+                        document.getElementById('password1').setAttribute('class','form-control is-invalid');
+
+                    }
+                    else{
+                        if (document.getElementById('password1Valid')){
+                            document.getElementById('password1Valid').remove();
+                            document.getElementById('password1').setAttribute('class','form-control');
+                        }
+                    }
+                }
+
+                var pass2 = document.getElementById('password2');
+    
+                if (pass1.value==pass2.value && pass1.value.length>0){
+                    passMatch=true;
+
+                    if (document.getElementById('passwordMatch')){
+                        document.getElementById('passwordMatch').remove();
+                        document.getElementById('password2').setAttribute('class','form-control');
+                    }
+                }
+                else{
+                    passMatch=false;
+                    if (pass2.value.length>0&&!document.getElementById('passwordMatch')){
+                        var newAtt = document.createElement("div");
+                        newAtt.setAttribute('id','passwordMatch');
+                        var text = document.createTextNode("Passwords must match");
+                        newAtt.appendChild(text);
+                        document.getElementById('password2-form').appendChild(newAtt);
+                        document.getElementById('password2').setAttribute('class','form-control is-invalid');
+
+                    }
+                    else{
+                        if (document.getElementById('passwordMatch')){
+                            document.getElementById('passwordMatch').remove();
+                            document.getElementById('password2').setAttribute('class','form-control');
+                        }
+                    }
+                }
+
+                var test = document.createElement("p")
+                test.setAttribute('id', 'passwordErrorMessage')
+
+                console.log(emailValid, passValid, passMatch)
+
+                validateForm();
+            }
+
+            function validateForm(){
+                var button = document.querySelector("button");
+                if (emailValid&&passValid&&passMatch){
+                    if (button.hasAttribute('disabled')){
+                        button.removeAttribute('disabled');
+                    }
+                }
+                else{
+                    if (!button.hasAttribute('disabled')){
+                        button.setAttribute('disabled','');
+                    }
+                }
+            }
+        </script>
+
+    </div>
+    {% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Home - HelloString{% endblock %}
+
+{% block nav_right %}
+
+<a class="nav-item nav-link" id="API" href="/api_docs" style="color:white">API</a>
+
+{% if current_user.is_authenticated %}       
+    <a class="nav-item nav-link" id="logout" href="/settings" style="color:white">Settings</a>
+    <a class="nav-item nav-link" id="logout" href="/logout" style="color:white">Logout</a>
+{% else %}
+    <a class="nav-item nav-link" id="login" href="/login" style="color:white">Login</a>
+    <a class="nav-item nav-link" id="signUp" href="/sign-up" style="color:white">Sign Up</a>
+{% endif %}
+
+{% endblock %}
+
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %} 
+        {% if messages %} 
+            {% for category, message in messages %} 
+                {% if category =='error' %}
+                    <div class="alert alert-danger alter-dismissable fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success alter-dismissable fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                {% endif %} 
+            {% endfor %} 
+        {% endif %} 
+    {% endwith %}
+
+<div class='body-home-search'>
+    <div class='body-home-search-title'>
+        <h2>
+            HelloString Text Analysis
+        </h2>
+    </div>
+    <div class="body-home-search-input">
+        <form method="POST">
+            <script>
+
+                var responseData = ''
+
+                function validate(){
+                    const areatextarea = document.querySelector("#summary");
+                    const areatext = document.querySelector("#summary").value.length;
+                    const textcount = document.querySelector("#word_counter");
+                    if (areatext>0)
+                    textcount.innerHTML = areatext + '/100';
+                    else textcount.innerHTML = '';
+                    
+                }
+
+                if ( window.history.replaceState ) {
+                    window.history.replaceState( null, null, window.location.href );
+                }
+
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(form);  // grab the data inside the form fields
+                    form.reset();
+                    fetch('/', {   // assuming the backend is hosted on the same server
+                        method: 'POST',
+                        body: formData,
+                    }).then(function(response) {
+                        responseData = 'test'
+                        var x = document.querySelectorAll(".toggle-div");
+                        for (var i = 0; i < x.length; i++) {
+                            x[i].classList.toggle('hidden');
+                        }
+                    });
+                });
+
+                
+
+            </script>
+            <div style="position: relative; display: table; width:100%">
+                <input autocomplete="off" style="resize: none; box-shadow: none;" class="form-control form-control-lg" name="summary" id="summary" minlength="1" maxlength="100" onkeyup="validate()" type="text" placeholder="Start by entering your text here">
+                <div class="word-counter" id="word_counter"></div>
+            </div>
+            
+        </form>
+    </div>
+    
+    <div class='body-home-search-title' style="position:fixed; left:0; bottom:0; width:100%;">
+        <h6 style="text-align: center;">Hello<i>String</i> is a natural language processing application that provides both an interface through this page and a RESTful API for using it's resources.</h6>
+        <h6 style="text-align: center;">No copyrights reserved</h6>
+    </div>
+</div>
+
+{% endblock %}

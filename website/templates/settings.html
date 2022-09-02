@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Settings - HelloString{% endblock %}
+
+{% block nav_right %}
+
+<a class="nav-item nav-link" id="API" href="/api_docs" style="color:white">API</a>
+
+{% if current_user.is_authenticated %}       
+    <a class="nav-item nav-link" id="logout" href="/settings" style="color:white">Settings</a>
+    <a class="nav-item nav-link" id="logout" href="/logout" style="color:white">Logout</a>
+{% else %}
+    <a class="nav-item nav-link" id="login" href="/login" style="color:white">Login</a>
+    <a class="nav-item nav-link" id="signUp" href="/sign-up" style="color:white">Sign Up</a>
+{% endif %}
+
+{% endblock %}
+
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %} 
+    {% if messages %} 
+        {% for category, message in messages %} 
+            {% if category =='error' %}
+                <div class="alert alert-danger alter-dismissable fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% else %}
+                <div class="alert alert-success alter-dismissable fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% endif %} 
+        {% endfor %} 
+    {% endif %} 
+    {% endwith %}
+
+    
+
+    <div class="body-main" style="width: 80%; height: 100%; margin: auto;">
+        <div class="body-main-list" style="width: 100%; height: 80%; ">
+            <div style="display: flex; flex-direction:row; justify-content:space-between;">
+                <h4 style="padding-top: 10px">User Details</h4>
+            </div>
+            <hr style="border: 1; clear:both; display:block; width: 100%; border-color:gray; background-color:black; height: 1px;">
+            <div style="width: fit-content">
+                <p>Email: {{user_email}}</p>
+                <p>{% if is_authed %} Verification Status: <span style="color: darkgreen">&#x2714;</span> Verified{% else %} <form method="POST" style="display:inline;">Verification Status: <span style="color: darkred">&#x2716;</span> <span> Not Verified <input type="submit" name="btn" value="Resend" style="display:inline; margin-left: 1em;"></button></form></span>{% endif %} </p>
+                <form method="POST" style="padding: 1%" class="body-main-list" onSubmit="return confirm('Are you sure you wish to delete?');">
+                    <button type="submit" class="btn btn-danger" name="btn" value="Delete">Delete User</button>
+                </form>
+            </div>
+            <br>
+            <div style="display: flex; flex-direction:row; justify-content:space-between;">
+                <h4 style="padding-top: 10px">API Authentication</h4>
+            </div>
+            <hr style="border: 1; clear:both; display:block; width: 100%; border-color:gray; background-color:black; height: 1px;">
+            <div style="width: fit-content">
+                {% if is_authed %}
+                <p>Auth key: {{auth_key}} </p>
+                {% else %}
+                <p>Account Validation Pending</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
