@@ -124,6 +124,7 @@ def frequency():
             else:
                 return make_response('Argument "level incorrect', 400)
         else:
+            print({'word_frequency': wordFreq(request.args.get('text'))})
             return make_response(jsonify({'word_frequency': wordFreq(request.args.get('text'))}), 200)
     else:
         return make_response('No text argument', 400)
@@ -142,7 +143,7 @@ def stopwrds():
         if 'sw_list' in request.args:
             sw = request.args.get('sw_list')
 
-        return make_response(jsonify({'stopwords': remStopwords(request.args.get('text'), sw = sw, tokens=tokens)}), 200)
+        return make_response(jsonify({'text': remStopwords(request.args.get('text'), sw = sw, tokens=tokens)}), 200)
 
     else:
         return make_response('No text argument', 400)
@@ -170,7 +171,7 @@ def lemmatize():
 @views.route('/api/pos', methods=['GET'])
 def pos_tagging():
     if 'text' in request.args:
-        return make_response(jsonify({'pos_tags': pos_tagger(request.args.get('text'))}), 200)
+        return make_response(jsonify({'tokens': tokenizeWords(request.args.get('text')),'pos_tags': pos_tagger(request.args.get('text'))}), 200)
     else:
         return make_response('No text argument', 400)
 

@@ -19,7 +19,7 @@
 
 <div style="padding-left: 1em; padding-right: 1em; margin-left: auto; margin-right: auto; max-width: 1300px;">
     <div style="display: flex; width: 100%; align-items: flex-start;">
-        <div style="width: 300px; margin-right: 2em; position: sticky; top: 0; background-color: #fafafa; border: 1px; border-style: groove;">
+        <div style="width: 300px; margin-right: 2em; position: sticky; top: 1em; background-color: #fafafa; border: 1px; border-style: groove;">
             <div style="padding: 2em; display: block;">
                 <p style="opacity: 0.7; font-weight: 300; list-style-type: none; margin-bottom: 0px;">
                     <h4 style="font-weight: 500;">Contents</h4>
@@ -43,8 +43,8 @@
                     <h5>About</h5>
                 </p>
                 <ul style="margin-bottom: 1em; text-transform: none; list-style-type: none; padding-left: 0px;">
-                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-introduction">General</a></li>
-                    <li style="display: list-item;"><a style="font-weight: 500;" href="../howto.html">Resources</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-general">General</a></li>
+                    <li style="display: list-item;"><a style="font-weight: 500;" href="#api-resources">Resources</a></li>
                 </ul>
             </div>
         </div>
@@ -195,10 +195,10 @@
                             <p> Outputs:<br>
                                 <pre>
 <code class="language-json hljs">{
-'stopwords': String
+'text': String
 }</code>
                                 </pre>
-                                The 'stopwords' contains the input string, stripped of it's stopwords.
+                                The 'text' contains the input string, stripped of it's stopwords.
                             </p>
 
                             <p>
@@ -326,10 +326,12 @@
                             <p> Outputs:<br>
                                 <pre>
 <code class="language-json hljs">{
+'tokens': [--Array of Strings--],
 'pos_tags': [--Array of Strings--]
 }</code>
                                 </pre>
-                                The 'pos_tags' is an array of strings containing every POS tag of each word/part of speech contained in the input string. For more information about the given POS tags, please advise the following table:
+                                The 'tokens' is an array of all the word tokens extracted from the text provided.
+                                The 'pos_tags' is an array of strings containing every POS tag of each word/part of speech extracted as a token from the input string (provided in 'tokens'). For more information about the given POS tags, please advise the following table:
                             </p>
                             <table class="table table-striped">
                                 <thead>

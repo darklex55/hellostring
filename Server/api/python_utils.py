@@ -99,15 +99,15 @@ def stemmer(text, stemmer='porter'):
     detok = TreebankWordDetokenizer()
     if stemmer=='porter':
         ps = PorterStemmer()
-        return detok.detokenize([ps.stem(w) for w in tokenizeWords(text)])
+        return detok.detokenize([ps.stem(w) for w in tokenizeWords(unquote(text).lower())])
     if stemmer=='snowball':
         ps = SnowballStemmer("english")
-        return detok.detokenize([ps.stem(w) for w in tokenizeWords(text)])
+        return detok.detokenize([ps.stem(w) for w in tokenizeWords(unquote(text).lower())])
 
 def lemmatizer(text):
     detok = TreebankWordDetokenizer()
     ps = WordNetLemmatizer()
-    return detok([ps.lemmatize(w) for w in tokenizeWords(text)])
+    return detok.detokenize([ps.lemmatize(w) for w in tokenizeWords(unquote(text).lower())])
 
 def pos_tagger(text):
     return [i[1] for i in pos_tag(tokenizeWords(text))]
