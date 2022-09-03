@@ -1,4 +1,3 @@
-from flask_login import current_user
 from .models import User
 
 from hashlib import sha256
@@ -30,16 +29,19 @@ def produceHashFromText(text):
     return sha256(text).hexdigest()
 
 def sendValidationEmail(email, auth_key, url_root):
+    url_root_c = url_root
+    if (url_root_c[-1]=='/'):
+        url_root_c = url_root_c[:-1]
     msg = MIMEMultipart()
     msg['Subject'] = 'HelloString Account Verification'
     msg['From'] = 'darklex55server@gmail.com'
-    text = 'Please validate your account by clicking the following link: '+ url_root +'/verification?auth_key='+ auth_key
+    text = 'Please validate your account by clicking the following link: '+ url_root_c +'/verification?auth_key='+ auth_key
     msg.attach(MIMEText(text,'plain'))
     smtp = smtplib.SMTP('smtp.gmail.com:587')
     smtp.ehlo()
     smtp.starttls()
     smtp.ehlo()
-    smtp.login('darklex55server@gmail.com','alliens55')
+    smtp.login('darklex55server@gmail.com','qpvfntgdvddadhqo')
     smtp.sendmail('darklex55server@gmail.com',email,msg.as_string())
     smtp.quit()
 
@@ -49,12 +51,6 @@ def checkAuthToken(auth_token):
         return True
     return False
 
-def checkUserForAuth():
-    if (current_user.is_authenticated):
-        return current_user.is_authed
-    else:
-        return False
-
 def tokenizeSentence(text):
     return sent_tokenize(unquote(text))
 
@@ -62,16 +58,16 @@ def tokenizeWords(text):
     return word_tokenize(unquote(text))
 
 def getPunctuationCount(text):
-    return sum([1 for char in text if char in string.punctuation])
+    return sum([1 for char in unquote(text) if char in string.punctuation])
 
 def wordFreq(text, level='word'):
     if level=='word':
-        return dumps(dict(FreqDist(tokenizeWords(unquote(text)))))
+        return dumps(dict(FreqDist(tokenizeWords(unquote(text).lower()))))
     else:
-        return dumps(dict(FreqDist(unquote(text))))
+        return dumps(dict(FreqDist(unquote(text).lower())))
 
 def wordFreqAnalysis(text):
-    data = dict(FreqDist(tokenizeWords(unquote(text))))
+    data = dict(FreqDist(tokenizeWords(unquote(text).lower())))
     data_sorted = sorted(data, key=data.get, reverse=True)
     return [data_sorted, [data.get(val) for val in data_sorted]]
 
@@ -127,7 +123,8 @@ def posWordsAnalysis(text):
     'UH': 'Interjection', 'VB': 'Verb', 'VBG': 'Verb', 'VBD': 'Verb', 'VBN': 'Verb', 'VBP': 'Verb', 'VBZ': 'Verb', 'WDT': 'Determiner', 'WP': 'Determiner', 'WRB': 'Determiner', '.': 'Punctuation', 'other': 'Other'}
     html_string = ''
     for i in range(len(tokens)):
-        html_string+='<span data-placement="top" data-toggle="tooltip" title="'+ pos_dict_real.get(pos_tags[i],'other') +'" onclick="location.href="#";" style="cursor: pointer;" class="' + pos_dict.get(pos_tags[i], 'other') + '">' + tokens[i] +' </span>'
+        html_string+='<span onclick="location.href="#";" style="cursor: pointer;" class="' + pos_dict.get(pos_tags[i], 'other') + '"><span class="hovertext" data-hover="' + pos_dict_real.get(pos_tags[i],'other') + '">' + tokens[i] +' </span></span>'
+        #html_string+='<span class="hovertext" data-hover="' + pos_dict_real.get(pos_tags[i],'other') + '">' + tokens[i] +' </span>'
     return html_string
 
 def sentiment_analyzer(text, method, continuous):
@@ -162,7 +159,6 @@ def sentiment_analyzer(text, method, continuous):
                 return 0
 
 def aggressiveness_analyzer(text, continuous):
-    print(text)
     lematizer = WordNetLemmatizer()
     vectorizer = pickle.load(open('models/tfidf_vectorizer.pickle','rb'))
     continuous = True if continuous == 'yes' else False
@@ -239,6 +235,4 @@ def analysis_sentiment_analyzer(text):
     return round(1000*sentiment_analyzer(text,'vader','yes'))/1000
 
 def analysis_aggressiveness_analyzer(text):
-    print(text)
-    print(aggressiveness_analyzer(text,'yes'))
     return round(1000*aggressiveness_analyzer(unquote(text),'yes'))/1000

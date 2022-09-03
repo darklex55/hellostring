@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
+import requests, json
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
@@ -28,7 +29,16 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(id):
-        return User.query.get(int(id))
+        try:
+            res = requests.get('http://127.0.0.1:8001/load_user', json=json.dumps({"id":id}))
+        except:
+            return User(id,'','','','','')
+                
+        if res.status_code==200:
+            res = res.json()
+            return User(res.get('id'),res.get('email'),res.get('password'),res.get('is_authed'),res.get('auth_key'),res.get('mail_auth_key'))
+        else: 
+            return User(id,'','','','','')
 
     return app
 
