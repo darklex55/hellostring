@@ -90,6 +90,34 @@
             </div>
             
         </form>
+
+        <div style = "position: absolute; padding-top:2em; padding-left: 1em; padding-right: 1em">
+            {% if old_records_exist %}
+            <div>
+                <script>
+                    function record_history_onClick(obj){
+                        location.href = '/analyze?text=' + encodeURIComponent(obj.childNodes[0].childNodes[0].childNodes[0].innerHTML);
+                    }
+                </script>
+                <p>Your history: </p>
+                <div style = "padding-left: 1em;">
+                    <table>
+                    {% for record in old_records %}
+                        <tr>
+                            {% if record.rest == True %}
+                            <td style="padding-right:0.75em"><button type="button" class="btn btn-light" style="white-space: normal; background-color:transparent; padding: unset; margin: unset; border: 0;" onclick="record_history_onClick(this)"><span style="font-size: 16px"><b><u>{{record.text}}</u></b></span></button></td><td><span class="badge badge-danger" style="width: 38px">REST</span></td>
+                            {%else%}
+                            <td style="padding-right:0.75em"><button type="button" class="btn btn-light" style="white-space: normal; background-color:transparent; padding: unset; margin: unset; border: 0;" onclick="record_history_onClick(this)"><span style="font-size: 16px"><b><u>{{record.text}}</u></b></span></button></td><td><span class="badge badge-warning" style="width: 38px">WEB</span></td>
+                            {%endif%}
+                        </tr>
+                    {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            {% else %}
+            {% endif %}
+        </div>
     </div>
     
     <div class='body-home-search-title' style="position:fixed; left:0; bottom:0; width:100%;">

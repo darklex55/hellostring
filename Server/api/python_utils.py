@@ -1,4 +1,5 @@
-from .models import User
+from .models import User, Text_Log
+from sqlalchemy import select
 
 from hashlib import sha256
 from urllib.parse import unquote
@@ -50,6 +51,18 @@ def checkAuthToken(auth_token):
     if stored_user:
         return True
     return False
+
+def getLastHistoryTexts(auth_key):
+    query = Text_Log.query.filter_by(auth_key=auth_key).order_by(Text_Log.id.desc()).all()
+    records = []
+
+    for q in query:
+        records.append({'text': q.text, 'rest': q.rest})
+        if (len(records)==5):
+            return records
+
+    print(records)
+    return records
 
 def tokenizeSentence(text):
     return sent_tokenize(unquote(text))

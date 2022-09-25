@@ -98,6 +98,9 @@
                                     <li>
                                        <b> text: </b> (Type: String *) The input string that needs to be tokenized
                                     </li>
+                                    <li>
+                                        <b> auth: </b> (Type: String, Optional) The authentication key given to every verified account (find it under the "Settings" page)
+                                     </li>
                                 </ul>
                             </p>
 
@@ -110,6 +113,7 @@
                                 </pre>
                                 The 'sentence_tokens' contains an array of all the sentences found in the input string while the 'word_tokens' contains an array of all
                                 the words found in the input string.
+                                (Use the auth key only when you want to save and find your API call to your history)
                             </p>
 
                             <p>
@@ -143,6 +147,9 @@
                                     <li>
                                         <b> level: </b> (Type: String, Choices: [char, word <i>(default)</i>], Optional) Frequency analysis on character/word level
                                      </li>
+                                     <li>
+                                        <b> auth: </b> (Type: String, Optional) The authentication key given to every verified account (find it under the "Settings" page)
+                                     </li>
                                 </ul>
                             </p>
 
@@ -152,7 +159,7 @@
 'word_frequency': {JSON structure}
 }</code>
                                 </pre>
-                                The 'word_frequency' is a JSON structured object containing the characters/words as keys and their frequency in the input text as a value.
+                                The 'word_frequency' is a JSON structured object containing the characters/words as keys and their frequency in the input text as a value. (Use the auth key only when you want to save and find your API call to your history)
                             </p>
 
                             <p>
@@ -189,6 +196,9 @@
                                         <b>sw_list: </b> (Type: Array of Strings *, Optional) Array containing user-defined stopwords - overwrites default stopword list.
                                         For the default stopword list, visit the following <a href="https://gist.github.com/sebleier/554280">link</a>.
                                      </li>
+                                     <li>
+                                        <b> auth: </b> (Type: String, Optional) The authentication key given to every verified account (find it under the "Settings" page)
+                                     </li>
                                 </ul>
                             </p>
 
@@ -198,7 +208,7 @@
 'text': String
 }</code>
                                 </pre>
-                                The 'text' contains the input string, stripped of it's stopwords.
+                                The 'text' contains the input string, stripped of it's stopwords. (Use the auth key only when you want to save and find your API call to your history)
                             </p>
 
                             <p>
@@ -235,6 +245,9 @@
                                     <li>
                                         <b>stemmer: </b> (Type: String, Choices: [snowball, porter <i>(default)</i>], Optional) Stemming method used
                                      </li>
+                                     <li>
+                                        <b> auth: </b> (Type: String, Optional) The authentication key given to every verified account (find it under the "Settings" page)
+                                     </li>
                                 </ul>
                             </p>
 
@@ -244,7 +257,7 @@
 'stemmed_string': String
 }</code>
                                 </pre>
-                                The 'stemmed_string' contains the input string, after being stemmed through one of the above methods.
+                                The 'stemmed_string' contains the input string, after being stemmed through one of the above methods. (Use the auth key only when you want to save and find your API call to your history)
                             </p>
 
                             <p>
@@ -279,6 +292,9 @@
                                        <b> text: </b> (Type: String *) The input string that needs to be lemmatized
                                     </li>
                                 </ul>
+                                <li>
+                                    <b> auth: </b> (Type: String, Optional) The authentication key given to every verified account (find it under the "Settings" page)
+                                 </li>
                             </p>
 
                             <p> Outputs:<br>
@@ -287,7 +303,7 @@
 'lemmatized_string': String
 }</code>
                                 </pre>
-                                The 'lemmatized_string' contains the input string, after being lemmatized. For more info about how the lemmatization is being applied, follow <a href="https://www.nltk.org/_modules/nltk/stem/wordnet.html">this link</a>.
+                                The 'lemmatized_string' contains the input string, after being lemmatized. For more info about how the lemmatization is being applied, follow <a href="https://www.nltk.org/_modules/nltk/stem/wordnet.html">this link</a>. (Use the auth key only when you want to save and find your API call to your history)
                             </p>
 
                             <p>
@@ -320,6 +336,9 @@
                                     <li>
                                        <b> text: </b> (Type: String *) The input string that needs to be tagged
                                     </li>
+                                    <li>
+                                        <b> auth: </b> (Type: String, Optional) The authentication key given to every verified account (find it under the "Settings" page)
+                                     </li>
                                 </ul>
                             </p>
 
@@ -330,7 +349,7 @@
 'pos_tags': [--Array of Strings--]
 }</code>
                                 </pre>
-                                The 'tokens' is an array of all the word tokens extracted from the text provided.
+                                The 'tokens' is an array of all the word tokens extracted from the text provided. (Use the auth key only when you want to save and find your API call to your history)
                                 The 'pos_tags' is an array of strings containing every POS tag of each word/part of speech extracted as a token from the input string (provided in 'tokens'). For more information about the given POS tags, please advise the following table:
                             </p>
                             <table class="table table-striped">

@@ -8,10 +8,23 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET','POST'])
 def home():
     session.clear()
+    old_records = []
+    if request.method=='GET':
+        if (current_user.is_authenticated):
+            try:
+                res = requests.get('http://127.0.0.1:8001/get_user_history', json=json.dumps({'auth_key': current_user.auth_key}))
+                old_records = res.json().get('last_records')
+            except:
+                flash('Error connecting to server', category='error')
+
+
     if request.method=='POST':
         if len(request.form.get('summary'))>0:
-            return redirect(url_for('views.analyze', text = quote(request.form.get('summary'))))
-    return render_template("home.html"), 200
+            uid = ''
+            if (current_user.is_authenticated):
+                uid = current_user.auth_key
+            return redirect(url_for('views.analyze', text = quote(request.form.get('summary')), auth = uid))
+    return render_template("home.html", old_records = old_records, old_records_exist = len(old_records)>0), 200
 
 @views.route('/analyze', methods=['GET'])
 def analyze():
@@ -24,7 +37,10 @@ def analyze():
                 is_authed = True
 
         try:
-            res = requests.get('http://127.0.0.1:8001/analyze_front', json=json.dumps({"inserted_text": inserted_text, "is_authed": is_authed}))
+            if ('auth' in request.args):
+                res = requests.get('http://127.0.0.1:8001/analyze_front', json=json.dumps({"inserted_text": inserted_text, "is_authed": is_authed, 'auth': request.args.get('auth')}))
+            else:
+                res = requests.get('http://127.0.0.1:8001/analyze_front', json=json.dumps({"inserted_text": inserted_text, "is_authed": is_authed}))
         except:
             flash('Error connecting to server', category='error')
             return render_template("home.html"), 400
