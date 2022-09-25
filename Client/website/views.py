@@ -102,6 +102,25 @@ def api_docs():
     session.clear()
     return render_template("api.html"), 200
 
+@views.route('/monitor')
+@login_required
+def monitor():
+    if (current_user.is_privilleged):
+        user_emails = []
+        try:
+            res = requests.get('http://127.0.0.1:8001/get_registered_users?auth=' + current_user.auth_key)
+            if (res.status_code==200):
+                user_emails = res.json().get('emails')
+        except:
+            flash('Error connecting to server', category='error')
+
+        session.clear()
+        return render_template("monitor.html", user_emails = user_emails), 200
+    else:
+        session.clear()
+        flash('No privilleges to access this page', 'error')
+        return render_template("home.html"), 200
+
 @views.route('/verification')
 def account_verification():
     session.clear()
@@ -120,3 +139,4 @@ def account_verification():
     else:
         flash('Verification Error', category='error')
     return render_template("home.html"), 200
+

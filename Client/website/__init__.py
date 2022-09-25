@@ -36,9 +36,9 @@ def create_app():
                 
         if res.status_code==200:
             res = res.json()
-            return User(res.get('id'),res.get('email'),res.get('password'),res.get('is_authed'),res.get('auth_key'),res.get('mail_auth_key'))
+            return User(res.get('id'),res.get('email'),res.get('password'),res.get('is_authed'),res.get('auth_key'),res.get('mail_auth_key'),res.get('is_privilleged'))
         else: 
-            return User(id,'','','','','')
+            return User(id,'','','','','','')
 
     return app
 

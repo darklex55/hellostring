@@ -43,32 +43,60 @@
     {% endif %} 
     {% endwith %}
 
-    
+    <script>
+        var auth_key = '{{current_user.auth_key}}';
+
+        function httpGet(theUrl)
+        {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open( "GET", theUrl, false );
+            xmlHttp.send( null );
+            return xmlHttp.responseText;
+        }
+
+        function getHistory(email){
+
+            let data = JSON.parse(httpGet('http://127.0.0.1:8001/api/get_user_history?auth=' + auth_key + '&user_email=' + encodeURIComponent(email) + '&num=-1'));
+            
+            let history = '<table><tr><td style="padding-left:1em;"><b>Text</b></td><td style="padding-left:1em;"><b>REST</b></td><td style="padding-left:1em;"><b>Parameters</b></td></tr>';
+
+            if (data.records){
+                if (data.records.length>0){
+                    for (var i=0; i<data.records.length;i++){
+                        history += '<tr><td style="padding-left:1em;">' + data.records[i].text + '</td><td style="padding-left:1em;">' + ((data.records[i].rest=='true')? 'Yes':'No') + '</td><td style="padding-left:1em; text-align:center;">' + data.records[i].parameters + '</td></tr>';
+                    }
+                }
+                else{
+                    history = 'No data history for ' + email;
+                }
+            }
+            else{
+                history = 'No data history for ' + email;
+            }
+
+            document.getElementById('user_history_div').innerHTML = history;
+            
+        }
+    </script>
 
     <div class="body-main" style="width: 80%; height: 100%; margin: auto;">
         <div class="body-main-list" style="width: 100%; height: 80%; ">
             <div style="display: flex; flex-direction:row; justify-content:space-between;">
-                <h4 style="padding-top: 10px">User Details</h4>
+                <h4 style="padding-top: 10px">Verified User List</h4>
             </div>
             <hr style="border: 1; clear:both; display:block; width: 100%; border-color:gray; background-color:black; height: 1px;">
-            <div style="width: fit-content">
-                <p>Email: {{user_email}}</p>
-                <p>{% if is_authed %} Verification Status: <span style="color: darkgreen">&#x2714;</span> Verified{% else %} <form method="POST" style="display:inline;">Verification Status: <span style="color: darkred">&#x2716;</span> <span> Not Verified <input type="submit" name="btn" value="Resend" style="display:inline; margin-left: 1em;"></button></form></span>{% endif %} </p>
-                <form method="POST" style="padding: 1%" class="body-main-list" onSubmit="return confirm('Are you sure you wish to delete?');">
-                    <button type="submit" class="btn btn-danger" name="btn" value="Delete">Delete User</button>
-                </form>
+            <div style="width: fit-content; max-height: 450px; overflow: auto">
+                <p>User Email</p>
+                {% for email in user_emails %}
+                <button type="button" class="btn btn-light" style="white-space: normal; background-color:transparent; padding: unset; margin: unset; border: 0;" onclick="getHistory(this.value)" value={{email}}><span style="font-size: 16px"><b><u>{{email}}</u></b></span></button>
+                {% endfor %}
             </div>
             <br>
             <div style="display: flex; flex-direction:row; justify-content:space-between;">
-                <h4 style="padding-top: 10px">API Authentication</h4>
+                <h4 style="padding-top: 10px">User History</h4>
             </div>
             <hr style="border: 1; clear:both; display:block; width: 100%; border-color:gray; background-color:black; height: 1px;">
-            <div style="width: fit-content">
-                {% if is_authed %}
-                <p>Auth key: {{auth_key}} </p>
-                {% else %}
-                <p>Account Validation Pending</p>
-                {% endif %}
+            <div style="width: fit-content;  max-height: 400px; overflow: auto" id="user_history_div">
             </div>
         </div>
     </div>

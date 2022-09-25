@@ -24,7 +24,7 @@ def login():
         if res.status_code==200:
                 res = res.json()
                 print(res)
-                login_user(User(res.get('id'),res.get('email'),res.get('password'),res.get('is_authed'),res.get('auth_key'),res.get('mail_auth_key')), remember=True)############
+                login_user(User(res.get('id'),res.get('email'),res.get('password'),res.get('is_authed'),res.get('auth_key'),res.get('mail_auth_key'),res.get('is_privilleged')), remember=True)############
                 return redirect(url_for('views.home'))
         else: 
             print(res)
@@ -58,7 +58,7 @@ def sign_up():
 
         if res.status_code==200:
             res = res.json()
-            login_user(User(res.get('id'),res.get('email'),res.get('password'),res.get('is_authed'),res.get('auth_key'),res.get('mail_auth_key')), remember=True)
+            login_user(User(res.get('id'),res.get('email'),res.get('password'),res.get('is_authed'),res.get('auth_key'),res.get('mail_auth_key'), res.get('is_privilleged')), remember=True)
             flash('Account created!', category='success')
             #session.clear()
             return redirect(url_for('auth.login'))

@@ -52,16 +52,15 @@ def checkAuthToken(auth_token):
         return True
     return False
 
-def getLastHistoryTexts(auth_key):
+def getLastHistoryTexts(auth_key, num=5):
     query = Text_Log.query.filter_by(auth_key=auth_key).order_by(Text_Log.id.desc()).all()
     records = []
 
     for q in query:
-        records.append({'text': q.text, 'rest': q.rest})
-        if (len(records)==5):
+        records.append({'text': q.text, 'rest': q.rest, 'parameters': q.parameters})
+        if (len(records)==num):
             return records
 
-    print(records)
     return records
 
 def tokenizeSentence(text):

@@ -19,7 +19,7 @@ def login_user():
     user = User.query.filter_by(email=res.get('email')).first()
     if user:
         if check_password_hash(user.password, res.get('password')):
-            return make_response(jsonify({'id':user.id,'email':user.email,'password':user.password,'is_authed':user.is_authed, 'auth_key':user.auth_key, 'mail_auth_key': user.mail_auth_key}),200)
+            return make_response(jsonify({'id':user.id,'email':user.email,'password':user.password,'is_authed':user.is_authed, 'auth_key':user.auth_key, 'mail_auth_key': user.mail_auth_key, 'is_privilleged': user.is_privilleged}),200)
         else:
             return make_response('Incorrect Login', 400)
     else:
@@ -30,7 +30,7 @@ def load_user():
     res = json.loads(request.json)
     user = User.query.filter_by(id=res.get('id')).first()
     if user:
-        return make_response(jsonify({'id':user.id,'email':user.email,'password':user.password,'is_authed':user.is_authed, 'auth_key':user.auth_key, 'mail_auth_key': user.mail_auth_key}),200)
+        return make_response(jsonify({'id':user.id,'email':user.email,'password':user.password,'is_authed':user.is_authed, 'auth_key':user.auth_key, 'mail_auth_key': user.mail_auth_key, 'is_privilleged': user.is_privilleged}),200)
     else:
         return make_response('User not found', 400)
 
@@ -56,7 +56,7 @@ def register_user():
 
             sendValidationEmail(res.get('email'), produceHashFromText(str(user.id)), res.get('front_url'))
 
-            return make_response(jsonify({'id':user.id,'email':user.email,'password':user.password,'is_authed':user.is_authed, 'auth_key':user.auth_key, 'mail_auth_key': user.mail_auth_key}),200)
+            return make_response(jsonify({'id':user.id,'email':user.email,'password':user.password,'is_authed':user.is_authed, 'auth_key':user.auth_key, 'mail_auth_key': user.mail_auth_key, 'is_privilleged': user.is_privilleged}),200)
 
 @views.route('/delete_user', methods=['POST'])
 def delete_user():
@@ -118,7 +118,7 @@ def analyze_front():
     if (is_authed):
         user = User.query.filter_by(auth_key=res.get('auth')).first()
         if user:
-            log_text(res.get('auth'),'',unquote(inserted_text), False)
+            log_text(res.get('auth'),str({}),unquote(inserted_text), False)
 
     return make_response(jsonify({'pos': posWordsAnalysis(inserted_text), 
                                 'len': len(inserted_text),
@@ -129,6 +129,80 @@ def analyze_front():
                                 'sentiment_anal': sentiment_score,
                                 'sentiment_aggr': aggressiveness_score}), 200)
 
+@views.route('/get_registered_users', methods=['GET'])
+def get_registered_users():
+    if 'auth' in request.args:
+        user = User.query.filter_by(auth_key=unquote(request.args.get('auth'))).first()
+        if user:
+            if (user.is_privilleged):
+                query = User.query.filter_by(is_authed=True).all()
+                users = []
+
+                for q in query:
+                    users.append(q.email)
+
+                return make_response(jsonify({'emails': users}), 200)
+
+            else:
+                return make_response('Invalid authentication', 400)
+        else:
+            return make_response('Invalid authentication', 400)
+    else:
+        return make_response('Invalid authentication', 400)
+
+@views.route('/privillege_user', methods=['GET'])
+def privillege_user():
+    admin_auth = '2d075a32f865145dbd8597f122c4ef7f44fe7d4df004e5bc2781868c63184f01'
+    if 'auth' in request.args:
+        if request.args.get('auth') == admin_auth:
+            if 'user_email' in request.args:
+                user = User.query.filter_by(email=unquote(request.args.get('user_email'))).first()
+                if user:
+                    if user.is_authed:
+                        user.is_privilleged = True
+                        db.session.commit()
+                        return make_response('User became privilleged', 200)
+                    else:
+                        return make_response('User not authenticated', 400)
+                else:
+                    return make_response('User not found', 400)
+            else:
+                return make_response('User email not provided', 400)
+        else:
+            return make_response('Invalid authentication', 400)
+    else:
+        return make_response('Invalid authentication', 400)
+
+@views.route('/api/get_user_history', methods=['GET'])
+def get_history():
+    if 'auth' in request.args:
+        user = User.query.filter_by(auth_key=unquote(request.args.get('auth'))).first()
+        if user:
+            if (user.is_privilleged):
+                if 'user_email' in request.args:
+                    user = User.query.filter_by(email=unquote(request.args.get('user_email'))).first()
+                    if user:
+                        if 'num' in request.args:
+                            num = int(request.args.get('num'))
+                            if (num>0 or num==-1):
+                                records = getLastHistoryTexts(user.auth_key,num)
+                                return make_response(jsonify({'records': records}), 200)
+                            else:
+                                return make_response('Invalid number of records. Must be positive integer or -1.', 400)
+                        else:
+                            records = getLastHistoryTexts(user.auth_key)
+                            return make_response(jsonify({'records': records}), 200)
+                    else:
+                        return make_response('User not found', 400)
+                else:
+                    return make_response('User email not provided', 400)
+            else:
+                return make_response('Invalid authentication', 400)    
+        else:
+            return make_response('Invalid authentication', 400)
+    else:
+        return make_response('Invalid authentication', 400)
+
 @views.route('/api/tokenize', methods=['GET'])
 def tokenize():
     authed = False
@@ -137,7 +211,10 @@ def tokenize():
 
     if 'text' in request.args:
         if (authed):
-            log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+            parms = request.args.to_dict(flat=False)
+            parms.pop('text',None)
+            parms.pop('auth',None)
+            log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
         return make_response(jsonify({'sentence_tokens': tokenizeSentence(request.args.get('text')), 'word_tokens': tokenizeWords(request.args.get('text'))}), 200)
     else:
@@ -153,14 +230,20 @@ def frequency():
         if 'level' in request.args:
             if request.args.get('level') in ['char','word']:
                 if (authed):
-                    log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+                    parms = request.args.to_dict(flat=False)
+                    parms.pop('text',None)
+                    parms.pop('auth',None)
+                    log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
                 return make_response(jsonify({'word_frequency': wordFreq(request.args.get('text'), request.args.get('level'))}), 200)
             else:
                 return make_response('Argument "level incorrect', 400)
         else:
             if (authed):
-                log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+                parms = request.args.to_dict(flat=False)
+                parms.pop('text',None)
+                parms.pop('auth',None)
+                log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
             return make_response(jsonify({'word_frequency': wordFreq(request.args.get('text'))}), 200)
     else:
@@ -185,7 +268,10 @@ def stopwrds():
             sw = request.args.get('sw_list')
 
         if (authed):
-            log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+            parms = request.args.to_dict(flat=False)
+            parms.pop('text',None)
+            parms.pop('auth',None)
+            log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
         
         return make_response(jsonify({'text': remStopwords(request.args.get('text'), sw = sw, tokens=tokens)}), 200)
 
@@ -202,14 +288,20 @@ def stem():
         if 'stemmer' in request.args:
             if request.args.get('stemmer') in ['porter','snowball']:
                 if (authed):
-                    log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+                    parms = request.args.to_dict(flat=False)
+                    parms.pop('text',None)
+                    parms.pop('auth',None)
+                    log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
                 return make_response(jsonify({'stemmed_string': stemmer(request.args.get('text'), request.args.get('stemmer'))}), 200)
             else:
                 return make_response('Argument "stemmer" incorrect', 400)
         else:
             if (authed):
-                log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+                parms = request.args.to_dict(flat=False)
+                parms.pop('text',None)
+                parms.pop('auth',None)
+                log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
             return make_response(jsonify({'stemmed_string': stemmer(request.args.get('text'))}), 200)
     else:
@@ -223,7 +315,10 @@ def lemmatize():
 
     if 'text' in request.args:
         if (authed):
-            log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+            parms = request.args.to_dict(flat=False)
+            parms.pop('text',None)
+            parms.pop('auth',None)
+            log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
         return make_response(jsonify({'lemmatized_string': lemmatizer(request.args.get('text'))}), 200)
     else:
@@ -237,7 +332,10 @@ def pos_tagging():
 
     if 'text' in request.args:
         if (authed):
-            log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+            parms = request.args.to_dict(flat=False)
+            parms.pop('text',None)
+            parms.pop('auth',None)
+            log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
         return make_response(jsonify({'tokens': tokenizeWords(request.args.get('text')),'pos_tags': pos_tagger(request.args.get('text'))}), 200)
     else:
@@ -272,7 +370,10 @@ def sentimentize():
         continuous = request.args.get('cont')
 
     if (authed):
-        log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+        parms = request.args.to_dict(flat=False)
+        parms.pop('text',None)
+        parms.pop('auth',None)
+        log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
     return make_response(jsonify({'sentiment': sentiment_analyzer(text = request.args.get('text'), method = method, continuous=continuous)}), 200)
 
@@ -298,6 +399,9 @@ def aggressiveness():
          return make_response('No text argument', 400)
 
     if (authed):
-        log_text(request.args.get('auth'), request.json, unquote(request.args.get('text')),True)
+        parms = request.args.to_dict(flat=False)
+        parms.pop('text',None)
+        parms.pop('auth',None) 
+        log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
     return make_response(jsonify({'aggressiveness': aggressiveness_analyzer(request.args.get('text'), continuous)}), 200)
