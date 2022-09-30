@@ -1,6 +1,6 @@
 from . import db
 
-
+#User Table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True)
@@ -10,7 +10,7 @@ class User(db.Model):
     is_authed = db.Column(db.Boolean, default=False)
     is_privilleged = db.Column(db.Boolean, default=False)
 
-
+#Text Log Table
 class Text_Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     auth_key = db.Column(db.String(64))

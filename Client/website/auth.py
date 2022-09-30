@@ -6,6 +6,8 @@ import json
 
 auth = Blueprint('auth', __name__)
 
+#Defines login route. After credentials are inserted, sents them to back end (Server) as a request. If the response is positive,
+#user data are returned in the response and are inserted as a user cookie. The user is then redirected to homepage.
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if (current_user.is_authenticated):
@@ -26,12 +28,13 @@ def login():
                 print(res)
                 login_user(User(res.get('id'),res.get('email'),res.get('password'),res.get('is_authed'),res.get('auth_key'),res.get('mail_auth_key'),res.get('is_privilleged')), remember=True)############
                 return redirect(url_for('views.home'))
-        else: 
+        else:
             print(res)
             flash('Incorrect login', category='error')
 
     return render_template("login.html")
 
+#Defines logout route. Simply redirect user to login page after it deletes user's cookie.
 @auth.route('/logout')
 @login_required
 def logout():
@@ -39,6 +42,8 @@ def logout():
     flash('Logged out successfuly', category='success')
     return redirect(url_for('auth.login'))
 
+#Defines sign up route. Sents credentials to back end (Server) as a request. If response is successful (200),
+#sets the user cookie and redirects yser to homepage.
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
 
@@ -49,7 +54,7 @@ def sign_up():
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
         e_mail = request.form.get('e_mail')
-        
+
         try:
             res = requests.post('http://127.0.0.1:8001/register_user', json=json.dumps({"email":e_mail, "p1": password1, "p2": password2, "front_url": request.url_root }))
         except:

@@ -6,6 +6,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, Text_Log
 from . import db
 
+#Every response for every endpoint is defined here. Every route on /api/* endpoint is available to end users - parameters are passed through URI and data is return
+#as JSON. All the other routes are used for front-end/back-end communication - data is both recieved and sent in JSON format.
+
+#Function for logging API calls in Text Log database
 def log_text(auth_key, parameters, text, rest):
     new_text = Text_Log(auth_key = auth_key, parameters = parameters, text = text, rest = rest)
     db.session.add(new_text)
@@ -13,6 +17,7 @@ def log_text(auth_key, parameters, text, rest):
 
 views = Blueprint('views', __name__)
 
+#Login user back end operation. Finds user in db and validates credentials. If validation is successful, returns user data.
 @views.route('/login_user', methods=['GET'])
 def login_user():
     res = json.loads(request.json)
@@ -25,6 +30,7 @@ def login_user():
     else:
         return make_response('Incorrect Login', 400)
 
+#Returns user data by user's id for updating user cookie.
 @views.route('/load_user', methods=['GET'])
 def load_user():
     res = json.loads(request.json)
@@ -34,6 +40,7 @@ def load_user():
     else:
         return make_response('User not found', 400)
 
+#Register user back end operation. Searches user email entered in back end. If not found and credentials are well defined, creates user in DB and returns user data for cookie creation in front end. Also sents verification email.
 @views.route('/register_user', methods=['POST'])
 def register_user():
     res = json.loads(request.json)
@@ -58,6 +65,7 @@ def register_user():
 
             return make_response(jsonify({'id':user.id,'email':user.email,'password':user.password,'is_authed':user.is_authed, 'auth_key':user.auth_key, 'mail_auth_key': user.mail_auth_key, 'is_privilleged': user.is_privilleged}),200)
 
+#Deletes user from database by querying him with his id
 @views.route('/delete_user', methods=['POST'])
 def delete_user():
     res = json.loads(request.json)
@@ -69,6 +77,7 @@ def delete_user():
     else:
         return make_response('User not found', 400)
 
+#Resending verification to user's email, if user is found in DB.
 @views.route('/resend_verification', methods=['POST'])
 def resend_verification():
     res = json.loads(request.json)
@@ -79,6 +88,7 @@ def resend_verification():
     else:
         return make_response('User not found', 400)
 
+#Queries user's mail auth key in DB and if found, marks user as verified. Also generates and saves user's authentication code to user's db record, as a hash generated with appending user's email and password as input.
 @views.route('/verify_user', methods=['POST'])
 def verify_user():
     res = json.loads(request.json)
@@ -91,6 +101,7 @@ def verify_user():
     else:
         return make_response('User not found', 400)
 
+#Returns defined user's history data from Text Log table.
 @views.route('/get_user_history', methods=['GET'])
 def get_user_history():
     res = json.loads(request.json)
@@ -102,6 +113,7 @@ def get_user_history():
     else:
         return make_response('Auth not found', 400)
 
+#Analyzes text and returns returns analysis data for front-end analysis.
 @views.route('/analyze_front', methods=['GET'])
 def analyze_front():
     res = json.loads(request.json)
@@ -120,7 +132,7 @@ def analyze_front():
         if user:
             log_text(res.get('auth'),str({}),unquote(inserted_text), False)
 
-    return make_response(jsonify({'pos': posWordsAnalysis(inserted_text), 
+    return make_response(jsonify({'pos': posWordsAnalysis(inserted_text),
                                 'len': len(inserted_text),
                                 'tokens_word': len(tokenizeWords(inserted_text)),
                                 'tokens_sent': len(tokenizeSentence(inserted_text)),
@@ -129,6 +141,7 @@ def analyze_front():
                                 'sentiment_anal': sentiment_score,
                                 'sentiment_aggr': aggressiveness_score}), 200)
 
+#Gets list of verified user IF user is privilleged (checks user's privileged status by querying user table with auth key provided in parameters).
 @views.route('/get_registered_users', methods=['GET'])
 def get_registered_users():
     if 'auth' in request.args:
@@ -150,6 +163,7 @@ def get_registered_users():
     else:
         return make_response('Invalid authentication', 400)
 
+#If user provides the hardcoded admin_auth as parameter, queries user with the provided email parameter and if user is found, he get's privileged.
 @views.route('/privillege_user', methods=['GET'])
 def privillege_user():
     admin_auth = '2d075a32f865145dbd8597f122c4ef7f44fe7d4df004e5bc2781868c63184f01'
@@ -172,6 +186,9 @@ def privillege_user():
             return make_response('Invalid authentication', 400)
     else:
         return make_response('Invalid authentication', 400)
+
+#Every method from now on is a response to direct API calls. These routes are containing nested if's to check the parameters entered, call functions defined in python_utils and response accordingly.
+#Since each endpoint is self-explainatory, no further commentary is given on these routes
 
 @views.route('/api/get_user_history', methods=['GET'])
 def get_history():
@@ -197,7 +214,7 @@ def get_history():
                 else:
                     return make_response('User email not provided', 400)
             else:
-                return make_response('Invalid authentication', 400)    
+                return make_response('Invalid authentication', 400)
         else:
             return make_response('Invalid authentication', 400)
     else:
@@ -272,7 +289,7 @@ def stopwrds():
             parms.pop('text',None)
             parms.pop('auth',None)
             log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
-        
+
         return make_response(jsonify({'text': remStopwords(request.args.get('text'), sw = sw, tokens=tokens)}), 200)
 
     else:
@@ -357,7 +374,7 @@ def sentimentize():
 
     if 'text' not in request.args:
          return make_response('No text argument', 400)
-    
+
     if 'method' in request.args:
         if request.args.get('method') not in ['vader', 'textblob']:
             return make_response('Argument "method" incorrect', 400)
@@ -401,7 +418,7 @@ def aggressiveness():
     if (authed):
         parms = request.args.to_dict(flat=False)
         parms.pop('text',None)
-        parms.pop('auth',None) 
+        parms.pop('auth',None)
         log_text(request.args.get('auth'), str(parms), unquote(request.args.get('text')),True)
 
     return make_response(jsonify({'aggressiveness': aggressiveness_analyzer(request.args.get('text'), continuous)}), 200)

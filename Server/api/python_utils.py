@@ -1,3 +1,5 @@
+#This file contains every operation run on the back end, apart from request/response handling
+
 from .models import User, Text_Log
 from sqlalchemy import select
 
@@ -25,10 +27,12 @@ import lightgbm
 import string
 from collections import Counter
 
+#Create sha256 hash from input text
 def produceHashFromText(text):
     text = text.encode('UTF-8')
     return sha256(text).hexdigest()
 
+#Sent validation email through gmail's SMTP server with personal account
 def sendValidationEmail(email, auth_key, url_root):
     url_root_c = url_root
     if (url_root_c[-1]=='/'):
@@ -46,12 +50,14 @@ def sendValidationEmail(email, auth_key, url_root):
     smtp.sendmail('darklex55server@gmail.com',email,msg.as_string())
     smtp.quit()
 
+#Check if user exists in DB with auth_key as a query.
 def checkAuthToken(auth_token):
     stored_user = User.query.filter_by(auth_key=auth_token).first()
     if stored_user:
         return True
     return False
 
+#Queries "num" last history records from Text Log table with auth_key as a query.
 def getLastHistoryTexts(auth_key, num=5):
     query = Text_Log.query.filter_by(auth_key=auth_key).order_by(Text_Log.id.desc()).all()
     records = []
@@ -63,26 +69,32 @@ def getLastHistoryTexts(auth_key, num=5):
 
     return records
 
+#Tokenize to "sentence tokens"
 def tokenizeSentence(text):
     return sent_tokenize(unquote(text))
 
+#Tokenize to word tokens
 def tokenizeWords(text):
     return word_tokenize(unquote(text))
 
+#Count punctuation makrs
 def getPunctuationCount(text):
     return sum([1 for char in unquote(text) if char in string.punctuation])
 
+#Get word frequency
 def wordFreq(text, level='word'):
     if level=='word':
         return dumps(dict(FreqDist(tokenizeWords(unquote(text).lower()))))
     else:
         return dumps(dict(FreqDist(unquote(text).lower())))
 
+#Get word frequency in list form - formatted for front-end analysis
 def wordFreqAnalysis(text):
     data = dict(FreqDist(tokenizeWords(unquote(text).lower())))
     data_sorted = sorted(data, key=data.get, reverse=True)
     return [data_sorted, [data.get(val) for val in data_sorted]]
 
+#Stopword removal - either with a predifined list, or if sw list is given, using sw's items as stopwords. Returns either a text or tokens (based on tokens - True or False)
 def remStopwords(text, sw=[], tokens=True):
     filtered_sent=[]
     if len(sw)>0:
@@ -95,7 +107,7 @@ def remStopwords(text, sw=[], tokens=True):
         else:
             detok = TreebankWordDetokenizer()
             return detok.detokenize(filtered_sent)
-            
+
     else:
         stop_words=set(stopwords.words("english"))
         for w in word_tokenize(unquote(text)):
@@ -107,6 +119,7 @@ def remStopwords(text, sw=[], tokens=True):
             detok = TreebankWordDetokenizer()
             return detok.detokenize(filtered_sent)
 
+#Returns stemmed text (Porter or snowball stemmers available)
 def stemmer(text, stemmer='porter'):
     detok = TreebankWordDetokenizer()
     if stemmer=='porter':
@@ -116,22 +129,25 @@ def stemmer(text, stemmer='porter'):
         ps = SnowballStemmer("english")
         return detok.detokenize([ps.stem(w) for w in tokenizeWords(unquote(text).lower())])
 
+#Returns remmatized text
 def lemmatizer(text):
     detok = TreebankWordDetokenizer()
     ps = WordNetLemmatizer()
     return detok.detokenize([ps.lemmatize(w) for w in tokenizeWords(unquote(text).lower())])
 
+#Returns pos tags for text
 def pos_tagger(text):
     return [i[1] for i in pos_tag(tokenizeWords(text))]
 
+#Returns pos tags as html-ready entities - encoded directly for front-end analysis
 def posWordsAnalysis(text):
     tokens = tokenizeWords(text)
     pos_tags = pos_tagger(text)
     pos_dict = {'CC': 'cc', 'CD': 'cd', 'DT': 'dt', 'EX': 'ex', 'FW': 'fw',  'IN': 'in',  'JJ': 'jj', 'JJR': 'jj', 'JJS': 'jj', 'LS': 'ls', 'MD': 'md', 'NN': 'nn',
-    'NNS': 'nn', 'NNP': 'nn', 'NNPS': 'nn', 'PDT': 'pdt', 'POS': 'pos', 'PRP': 'pr', 'PRP$': 'pr', 'RB': 'rb', 'RBR': 'rb', 'RBS': 'rb', 'RP': 'rp', 'TO': 'to', 
+    'NNS': 'nn', 'NNP': 'nn', 'NNPS': 'nn', 'PDT': 'pdt', 'POS': 'pos', 'PRP': 'pr', 'PRP$': 'pr', 'RB': 'rb', 'RBR': 'rb', 'RBS': 'rb', 'RP': 'rp', 'TO': 'to',
     'UH': 'uh', 'VB': 'vb', 'VBG': 'vb', 'VBD': 'vb', 'VBN': 'vb', 'VBP': 'vb', 'VBZ': 'vb', 'WDT': 'wh', 'WP': 'wh', 'WRB': 'wh', '.': 'punc'}
     pos_dict_real = {'CC': 'Conjuction', 'CD': 'Cardinal', 'DT': 'Determiner', 'EX': 'Existential', 'FW': 'Foreign Word',  'IN': 'Preposition',  'JJ': 'Adjective', 'JJR': 'Adjective', 'JJS': 'Adjective', 'LS': 'List Market', 'MD': 'Modal', 'NN': 'Noun',
-    'NNS': 'Noun', 'NNP': 'Noun', 'NNPS': 'Noun', 'PDT': 'Predeterminer', 'POS': 'Possessive', 'PRP': 'Pronoun', 'PRP$': 'Pronoun', 'RB': 'Adverb', 'RBR': 'Adverb', 'RBS': 'Adverb', 'RP': 'Adverb', 'TO': 'Marker', 
+    'NNS': 'Noun', 'NNP': 'Noun', 'NNPS': 'Noun', 'PDT': 'Predeterminer', 'POS': 'Possessive', 'PRP': 'Pronoun', 'PRP$': 'Pronoun', 'RB': 'Adverb', 'RBR': 'Adverb', 'RBS': 'Adverb', 'RP': 'Adverb', 'TO': 'Marker',
     'UH': 'Interjection', 'VB': 'Verb', 'VBG': 'Verb', 'VBD': 'Verb', 'VBN': 'Verb', 'VBP': 'Verb', 'VBZ': 'Verb', 'WDT': 'Determiner', 'WP': 'Determiner', 'WRB': 'Determiner', '.': 'Punctuation', 'other': 'Other'}
     html_string = ''
     for i in range(len(tokens)):
@@ -139,6 +155,7 @@ def posWordsAnalysis(text):
         #html_string+='<span class="hovertext" data-hover="' + pos_dict_real.get(pos_tags[i],'other') + '">' + tokens[i] +' </span>'
     return html_string
 
+#Sentiment analysis using two possible models: Vader or Textblob. Returns score either discrete or continuous.
 def sentiment_analyzer(text, method, continuous):
     continuous = True if continuous == 'yes' else False
     text = unquote(text)
@@ -170,6 +187,7 @@ def sentiment_analyzer(text, method, continuous):
             else:
                 return 0
 
+#Returns aggressiveness score. Uses saved vectorizer and model to perform text preprocessing and prediction. (Custom model)
 def aggressiveness_analyzer(text, continuous):
     lematizer = WordNetLemmatizer()
     vectorizer = pickle.load(open('models/tfidf_vectorizer.pickle','rb'))
@@ -229,7 +247,7 @@ def aggressiveness_analyzer(text, continuous):
     vector = vectorizer.transform([tokens]).toarray()
 
     model = lightgbm.Booster(model_file='models/hellostring_aggressiveness.model')
-   
+
     score = model.predict(vector)[0]
 
     if score>1:
@@ -243,8 +261,10 @@ def aggressiveness_analyzer(text, continuous):
         else:
             return 0
 
+#Sentiment analyzer call for front end analysis
 def analysis_sentiment_analyzer(text):
     return round(1000*sentiment_analyzer(text,'vader','yes'))/1000
 
+#Aggressiveness analyzer call for front end analysis
 def analysis_aggressiveness_analyzer(text):
     return round(1000*aggressiveness_analyzer(unquote(text),'yes'))/1000

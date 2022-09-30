@@ -5,6 +5,9 @@ import requests, json
 
 views = Blueprint('views', __name__)
 
+#Define home route. GET method requests history data from back end if user is a verified user. Every request to the backend
+#is inside a try - except structure. This enables the front-end (Client) to run even if the back end (Server) is down.
+#POST method redirects the user to the analyze route with the text entered (and the auth key if user is verified) as url parameters.
 @views.route('/', methods=['GET','POST'])
 def home():
     session.clear()
@@ -26,6 +29,8 @@ def home():
             return redirect(url_for('views.analyze', text = quote(request.form.get('summary')), auth = uid))
     return render_template("home.html", old_records = old_records, old_records_exist = len(old_records)>0), 200
 
+#Defines analyze route. GET method requests the analysis from back end using as parameters the text (and the auth key if defined) from the user_id.
+#Response is recieved as a json. Contains all the data from analysis done in the back end. Data is directly served in the page's template.
 @views.route('/analyze', methods=['GET'])
 def analyze():
     session.clear()
@@ -47,11 +52,11 @@ def analyze():
 
         if (res.status_code==200):
             res = res.json()
-            return render_template("analyze.html", 
-            inserted_text = res.get('pos'), 
-            char_count = res.get('len'), 
-            word_count = res.get('tokens_word'), 
-            sent_count = res.get('tokens_sent'), 
+            return render_template("analyze.html",
+            inserted_text = res.get('pos'),
+            char_count = res.get('len'),
+            word_count = res.get('tokens_word'),
+            sent_count = res.get('tokens_sent'),
             punc_count = res.get('punkt'),
             chart_tokens = ['a','b','c'],
             chart_values = [5,3,1],
@@ -65,6 +70,9 @@ def analyze():
     else:
         return make_response(jsonify({'error': 'No text argument'}), 400)
 
+#User settings route. POST method #1 sents request to back end (Server) with user data, in order to delete user.
+#On success, logs out the user. POST method #2 sents request to back end server with front-end's endpoint and user's id as parameters.
+#On success, back end (Server) resends the verification email to specific user.
 @views.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
@@ -89,19 +97,21 @@ def settings():
         except:
             flash('Error connecting to server', category='error')
             return render_template("settings.html"), 400
-            
+
         if (res.status_code==200):
             flash('Verification email sent to ' + current_user.email, category='success')
         else:
             flash('Error resending email. Please try again later.', category='error')
     return render_template("settings.html", user_email=current_user.email, is_authed = current_user.is_authed, auth_key = current_user.auth_key)
 
-
+#API docs route. Sents a simple, static page to user.
 @views.route('/api_docs')
 def api_docs():
     session.clear()
     return render_template("api.html"), 200
 
+#Monitor route. On load, requests verified users list from back-end. The users are passed to the page's template. On that template,
+#a js script is defined to dynamically fetch history data from backend when selecting a user email.
 @views.route('/monitor')
 @login_required
 def monitor():
@@ -121,6 +131,8 @@ def monitor():
         flash('No privilleges to access this page', 'error')
         return render_template("home.html"), 200
 
+#Verification route. Sents request to back-end (Server) with mail's authentication key (provided from URI's parameters) when a users
+#clicks the verification link from his email. Redirects user to homepage and informs them with a flash message for the outcome.
 @views.route('/verification')
 def account_verification():
     session.clear()
@@ -139,4 +151,3 @@ def account_verification():
     else:
         flash('Verification Error', category='error')
     return render_template("home.html"), 200
-

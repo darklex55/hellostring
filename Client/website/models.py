@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 
-
+#Define user cookie - variables stored
 class User(UserMixin):
     def __init__(self, id, email, password, is_authed, auth_key, mail_auth_key, is_privilleged):
         self.id = id
@@ -19,4 +19,3 @@ class User(UserMixin):
 
     def is_authenticated(self):
         return True
-
