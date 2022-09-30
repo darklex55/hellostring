@@ -1,0 +1,9 @@
+Flask==2.2.2
+flask_cors==3.0.10
+flask_login==0.6.2
+flask_sqlalchemy==2.5.1
+lightgbm==3.3.2
+nltk==3.7
+SQLAlchemy==1.4.41
+textblob==0.17.1
+Werkzeug==2.2.2

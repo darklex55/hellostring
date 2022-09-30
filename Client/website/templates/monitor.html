@@ -88,7 +88,7 @@
             <div style="width: fit-content; max-height: 450px; overflow: auto">
                 <p>User Email</p>
                 {% for email in user_emails %}
-                <button type="button" class="btn btn-light" style="white-space: normal; background-color:transparent; padding: unset; margin: unset; border: 0;" onclick="getHistory(this.value)" value={{email}}><span style="font-size: 16px"><b><u>{{email}}</u></b></span></button>
+                <button type="button" class="btn btn-light" style="white-space: normal; background-color:transparent; padding: unset; margin: unset; border: 0;" onclick="getHistory(this.value)" value={{email}}><span style="font-size: 16px"><b><u>{{email}}</u></b></span></button><br>
                 {% endfor %}
             </div>
             <br>
